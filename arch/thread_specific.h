@@ -17,6 +17,7 @@
 #include <boost/thread.hpp>
 #include "exception.h"
 #include "jml/utils/exc_assert.h"
+#include <unordered_map>
 
 namespace ML {
 
@@ -101,33 +102,27 @@ template<typename T, typename Tag>
 struct ThreadSpecificInstanceInfo {
 
     struct PerThreadInfo {
-        PerThreadInfo()
-        {
-            threadNum = __sync_fetch_and_add(&totalNumThreads, 1);
-        }
-
-        ~PerThreadInfo()
-        {
-            // TODO: release the thread number so it doesn't grow indefinitely
-        }
-
-        int threadNum;
-        static int totalNumThreads;
-
-        std::vector<T> info;
+        std::unordered_map<int, T> info;
 
         T * get(int index)
         {
-            ExcAssertGreaterEqual(index, 0);
-            if (info.size() <= index)
-                info.resize(index + 1);
             return &info[index];
+        }
+
+        void erase(int index)
+        {
+            info.erase(index);
         }
     };
 
     ThreadSpecificInstanceInfo()
         : index(__sync_fetch_and_add(&currentIndex, 1))
     {
+    }
+
+    ~ThreadSpecificInstanceInfo()
+    {
+        getThisThread()->erase(index);
     }
 
     int index;
@@ -165,11 +160,6 @@ ThreadSpecificInstanceInfo<T, Tag>::staticInfo;
 template<typename T, typename Tag>
 int
 ThreadSpecificInstanceInfo<T, Tag>::currentIndex = 0;
-
-template<typename T, typename Tag>
-int
-ThreadSpecificInstanceInfo<T, Tag>::PerThreadInfo::
-totalNumThreads = 0;
 
 } // namespace ML
 
