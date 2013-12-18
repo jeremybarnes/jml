@@ -51,6 +51,7 @@ struct BacktraceInfo {
     frames from the top of the trace.
 */
 void backtrace(std::ostream & stream = std::cerr, int num_to_skip = 1);
+void jsonBacktrace(std::ostream & stream = std::cerr, int num_to_skip = 1);
 
 /** The information in a backtrace frame. */
 struct BacktraceFrame {
@@ -70,6 +71,7 @@ struct BacktraceFrame {
 
     /** Return a string with all the information. */
     std::string print() const;
+    std::string toJson() const;
 
     /** Return a string with the specific information for this trace. */
     std::string print_for_trace() const;

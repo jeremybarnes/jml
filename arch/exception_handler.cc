@@ -140,8 +140,13 @@ void trace_exception(void * object, const std::type_info * tinfo)
 
         std::ofstream file(path, std::ios_base::app);
         if(file) {
-            file << getenv("_") << endl;
-            backtrace(file, 3);
+            file << "{\n\t\"process\":\"" << getenv("_") << "\"," << endl;
+            if(exc) {
+                file << "\t\"report\":\"" << exc->what() << "\"," << endl;
+            }
+
+            jsonBacktrace(file, 3);
+            file << "}" << endl;
             file.close();
         }
     }

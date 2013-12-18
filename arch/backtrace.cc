@@ -46,6 +46,18 @@ void backtrace(std::ostream & stream, int num_to_skip)
         stream << format("%02d: ", i) << result[i].print() << endl;
 }
 
+void jsonBacktrace(std::ostream & stream, int num_to_skip)
+{
+    vector<BacktraceFrame> result = backtrace(num_to_skip);
+
+    stream << "\"backtrace\":[" << endl;
+    for (unsigned i = 0;  i < result.size();  ++i) {
+        if(i) stream << "," << endl;
+        stream << result[i].toJson() << endl;
+    }
+    stream << "]" << endl;
+}
+
 /** The information in a backtrace frame. */
 BacktraceFrame::
 BacktraceFrame(int num, const void * frame, const std::string & symbol)
@@ -109,6 +121,31 @@ print() const
     if (symbol != "")
         result += symbol;
     
+    return result;
+}
+
+std::string
+BacktraceFrame::
+toJson() const
+{
+    string result = format("{\n");
+
+    if (function_start) {
+        result += format("\t\"function\":\"%s\",\n", function.c_str());
+        auto offset = ptr_offset(function_start, address);
+        result += format("\t\"function-offset\":\"0x%zx\",\n", offset);
+    }
+
+    if (object_start) {
+        result += format("\t\"object\":\"%s\",\n", object.c_str());
+        auto offset = ptr_offset(object_start, address);
+        result += format("\t\"object-offset\":\"0x%zx\",\n", offset);
+    }
+
+    if (symbol != "")
+        result += format("\t\"symbol\":\"%s\",\n", symbol);
+
+    result += format("\t\"address\":\"0x%8p\"\n}", address);
     return result;
 }
 
