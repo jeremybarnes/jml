@@ -1,3 +1,6 @@
 [submodule "jml-build"]
 	path = jml-build
 	url = git@github.com:jeremybarnes/jml-build.git
+[submodule "soa"]
+	path = soa
+	url = https://github.com/datacratic/soa.git
