@@ -20,11 +20,13 @@ TEST_TMP:= $(TESTS)
 
 JML_TOP := .
 JML_BUILD := ./jml-build
+JML_BASE_TOP := ./jml-base
 INCLUDE := -I.
 
 export BUILD
 export BIN
 export JML_TOP
+export JML_BASE_TOP
 export JML_BUILD
 export TEST_TMP
 

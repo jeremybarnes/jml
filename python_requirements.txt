@@ -1,0 +1,2 @@
+# http://www.pip-installer.org/en/latest/requirements.html
+matplotlib==1.1.1
