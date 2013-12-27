@@ -1,2 +1,3 @@
 # http://www.pip-installer.org/en/latest/requirements.html
+numpy>=1.4
 matplotlib==1.1.1
