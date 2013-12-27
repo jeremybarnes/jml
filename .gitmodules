@@ -1,3 +1,6 @@
 [submodule "jml-build"]
 	path = jml-build
 	url = git@github.com:jeremybarnes/jml-build.git
+[submodule "jml-base"]
+	path = jml-base
+	url = https://github.com/jeremybarnes/jml-base.git
