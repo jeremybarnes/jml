@@ -48,10 +48,6 @@ std::ostream & operator << (std::ostream & stream, Sampling smp)
 BYTE_PERSISTENT_ENUM_IMPL(Sampling);
 
 
-} // namespace ML
-
-ENUM_INFO_NAMESPACE
-
 const Enum_Opt<ML::Transfer_Function_Type>
 Enum_Info<ML::Transfer_Function_Type>::
 OPT[Enum_Info<ML::Transfer_Function_Type>::NUM] = {
@@ -75,4 +71,5 @@ Enum_Info<ML::Sampling>::OPT[Enum_Info<ML::Sampling>::NUM] = {
 
 const char * Enum_Info<ML::Sampling>::NAME = "Sampling";
 
-END_ENUM_INFO_NAMESPACE
+} // namespace ML
+
