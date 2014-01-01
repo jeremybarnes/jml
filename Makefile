@@ -1,10 +1,24 @@
 # Makefile for Jeremy's Machine Learning library
 # Copyright (c) 2006 Jeremy Barnes.  All rights reserved.
 
-FC=gfortran
 -include local.mk
 
-LOCAL_LIB_DIR?=$(HOME)/local/lib /usr/local/lib
+CXX ?= g++
+CC ?= gcc
+FC ?= gfortran
+
+NODEJS_ENABLED?=1
+PYTHON_ENABLED?=0
+
+LOCAL_DIR?=$(HOME)/local
+NODE_PREFIX:=$(LOCAL_DIR)
+VOWS?=./node_modules/vows/bin/vows
+COFFEE?=./node_modules/coffee-script/bin/coffee
+LOCAL_LIB_DIR?=$(LOCAL_DIR)/lib /usr/local/lib
+LOCAL_INCLUDE_DIR:=$(LOCAL_DIR)/include $(LOCAL_DIR)/include/node
+
+MACHINE_NAME:=$(shell uname -n)
+VALGRINDFLAGS ?=--suppressions=soa/valgrind.supp --error-exitcode=1 --leak-check=full
 
 default: all
 .PHONY: default
@@ -31,6 +45,11 @@ export JML_BUILD
 export TEST_TMP
 
 include $(JML_BUILD)/arch/$(ARCH).mk
+
+CXXLINKFLAGS += -Wl,--copy-dt-needed-entries -Wl,--no-as-needed -L/usr/local/lib
+CFLAGS +=  -Wno-unused-but-set-variable
+CXXFLAGS +=  -Wno-unused-but-set-variable
+
 
 include $(JML_BUILD)/functions.mk
 include $(JML_BUILD)/rules.mk

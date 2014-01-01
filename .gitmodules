@@ -4,3 +4,12 @@
 [submodule "jml-base"]
 	path = jml-base
 	url = https://github.com/jeremybarnes/jml-base.git
+[submodule "soa"]
+	path = soa
+	url = https://github.com/datacratic/soa.git
+[submodule "tinyxml2"]
+	path = tinyxml2
+	url = https://github.com/datacratic/tinyxml2.git
+[submodule "google-url"]
+	path = google-url
+	url = https://github.com/datacratic/google-url.git

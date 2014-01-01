@@ -3,3 +3,7 @@ build
 $~
 *~
 .make_hash_cache
+virtualenv
+local.mk
+node_modules
+core
