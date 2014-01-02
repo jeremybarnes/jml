@@ -13,3 +13,6 @@
 [submodule "google-url"]
 	path = google-url
 	url = https://github.com/datacratic/google-url.git
+[submodule "lz4mt"]
+	path = lz4mt
+	url = https://github.com/jeremybarnes/lz4mt.git
