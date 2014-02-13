@@ -8,6 +8,8 @@
 #pragma once
 
 #include "jml/arch/exception.h"
+#include "jml/utils/exc_assert.h"
+#include "jml/arch/backtrace.h"
 #include <iostream>
 
 #if 0
@@ -66,21 +68,30 @@ namespace ML {
 
 struct Semaphore {
     sem_t val;
+    int magic;
+    enum { MAGIC = 1234590 };
 
     Semaphore(int initialVal = 1)
     {
         if (sem_init(&val, 0, initialVal))
             throw ML::Exception(errno, "sem_init");
+        this->magic = MAGIC;
     }
 
     ~Semaphore()
     {
+        using namespace std;
+        //std::cerr << "destroying semaphore at " << this << endl;
+        //backtrace();
+        ExcAssertEqual(magic, MAGIC);
+        this->magic = 0;
         if (sem_destroy(&val))
             throw ML::Exception(errno, "sem_destroy");
     }
 
     void acquire()
     {
+        ExcAssertEqual(magic, MAGIC);
         int res;
         while ((res = sem_wait(&val)) && errno == EINTR) ;
         if (res)
@@ -89,6 +100,7 @@ struct Semaphore {
 
     int tryacquire()
     {
+        ExcAssertEqual(magic, MAGIC);
         int res;
         while ((res = sem_trywait(&val)) && errno == EINTR) ;
 
@@ -102,6 +114,11 @@ struct Semaphore {
 
     void release()
     {
+        using namespace std;
+        //if (magic != MAGIC) {
+        //    cerr << "accessing destroyed semaphore at " << this << endl;
+        //}
+        ExcAssertEqual(magic, MAGIC);
         int res;
         while ((res = sem_post(&val)) && errno == EINTR) ;
         if (res)
