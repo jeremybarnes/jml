@@ -52,6 +52,11 @@ struct BacktraceInfo {
 */
 void backtrace(std::ostream & stream = std::cerr, int num_to_skip = 1);
 
+/** Append a backtrace to the given string, skipping the given number of
+    frames from the top of the trace.
+*/
+void backtrace(std::string & report, int num_to_skip = 1);
+
 /** The information in a backtrace frame. */
 struct BacktraceFrame {
 

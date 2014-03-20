@@ -4,6 +4,7 @@
 
 */
 
+#include <string>
 #include <sys/syscall.h>
 #include <fstream>
 #include "exception.h"
@@ -118,20 +119,18 @@ void trace_exception(void * object, const std::type_info * tinfo)
     auto pid = getpid();
     auto tid = (long) syscall(SYS_gettid);
 
+    string report = (string("\n--------------------------[Exception thrown]---------------------------\n")
+                     + "time:   " + string(datetime) + "\n"
+                     + "type:   " + demangle(tinfo->name()) + "\n"
+                     + "pid:    " + to_string(pid)
+                     + "; tid: " + to_string(tid) + "\n");
+    if (exc) report += "what:   " + string(exc->what()) + "\n";
 
-    cerr << endl;
-    cerr << "--------------------------[Exception thrown]---------------------------"
-         << endl;
-    cerr << "time:   " << datetime << endl;
-    cerr << "type:   " << demangle(tinfo->name()) << endl
-         << "pid:    " << pid << "; tid: " << tid << endl;
-    if (exc) cerr << "what:   " << exc->what() << endl;
-
-    cerr << "stack:" << endl;
-    backtrace(cerr, 3);
+    report += "stack:\n";
+    backtrace(report, 3);
 
     char const * reports = getenv("ENABLE_EXCEPTION_REPORTS");
-    if(reports) {
+    if (reports) {
         std::string path = ML::format("%s/exception-report-%s-%d-%d.log",
                                       reports,
                                       datetime,
@@ -139,14 +138,14 @@ void trace_exception(void * object, const std::type_info * tinfo)
                                       tid);
 
         std::ofstream file(path, std::ios_base::app);
-        if(file) {
+        if (file) {
             file << getenv("_") << endl;
             backtrace(file, 3);
             file.close();
         }
     }
 
-    cerr << endl;
+    cerr << report + "\n";
 }
 
 namespace {
