@@ -489,50 +489,39 @@ run_until_finished(int group, bool unlock)
 
         /* Is the group finished?  If so, we can get out of here. */
         {
-            if (group_info.error) {
-                if (group_info.jobs_running || group_info.jobs_outstanding) {
-                    log("run_until_finished: group_info.jobs_running: " +
-                        to_string(group_info.jobs_running)
-                        + "; group_info.jobs_outstanding: " +
-                        to_string(group_info.jobs_outstanding)
-                        + "\n");
-                    continue;
-                }
+            if (group_info.jobs_outstanding
+                + group_info.jobs_running
+                + group_info.groups_outstanding == 0) {
 
-                //cerr << "thread " << ACE_OS::thr_self()
-                //     << " had a group error" << endl;
-                /* The group had an error.  Wait until there's nothing
-                   running, then throw an exception. */
-                group_info.error = false;
-
-                /* Save the exception ptr, as we're about to remove the
-                   group. */
-                exception_ptr exc = group_info.exc;
-
-                //cerr << "finishing the group..." << endl;
-
-                wait_group_finished(group_info, group);
-                cancel_group(group_info, group);
-
-                //cerr << "done finishing group" << endl;
-
-                /* Unlock the group to allow everything to finish. */
-                unlock_guard.clear();
-                unlock_group(group);
-
-                /* Done; throw the exception. */
-                if (exc)
-                    rethrow_exception(exc);
-            }
-            else {
-                if (group_info.jobs_outstanding
-                    + group_info.jobs_running
-                    + group_info.groups_outstanding == 0) {
-                    /* We're finished */
+                /* We're finished */
+                if (group_info.error) {
                     //cerr << "thread " << ACE_OS::thr_self()
-                    //     << " finished all jobs" << endl;
-                    return;
+                    //     << " had a group error" << endl;
+                    /* The group had an error.  Wait until there's nothing
+                       running, then throw an exception. */
+                    group_info.error = false;
+
+                    /* Save the exception ptr, as we're about to remove the
+                       group. */
+                    exception_ptr exc = group_info.exc;
+
+                    //cerr << "finishing the group..." << endl;
+
+                    wait_group_finished(group_info, group);
+                    cancel_group(group_info, group);
+
+                    //cerr << "done finishing group" << endl;
+
+                    /* Unlock the group to allow everything to finish. */
+                    unlock_guard.clear();
+                    unlock_group(group);
+
+                    /* Done; throw the exception. */
+                    if (exc)
+                        rethrow_exception(exc);
                 }
+                else
+                    return;
             }
         }
 
