@@ -8,6 +8,7 @@
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
 
+#include <atomic>
 #include <boost/test/unit_test.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/barrier.hpp>
@@ -97,7 +98,7 @@ void null_job()
 }
 
 void test_overhead_job(int nthreads, int ntasks, bool verbose = true,
-                       void (&job) () = null_job)
+                       const std::function<void()> & job = null_job)
 {
     Worker_Task worker(nthreads - 1);
     
@@ -119,7 +120,7 @@ void test_overhead_job(int nthreads, int ntasks, bool verbose = true,
     }
     
     worker.run_until_finished(group);
-    
+
     if (verbose)
         cerr << "elapsed for " << ntasks << " null tasks in " << nthreads
              << " threads:" << timer.elapsed() << endl;
@@ -152,11 +153,20 @@ BOOST_AUTO_TEST_CASE( test_exception )
 {
     int njobs = 1000;
     set_trace_exceptions(false);
+
+    atomic<int> iterations(0);
+    auto wrapper = [&]() {
+        exception_job();
+        iterations++;
+    };
+
     for (unsigned i = 0;  i < 100;  ++i) {
         JML_TRACE_EXCEPTIONS(false);
         BOOST_CHECK_THROW(test_overhead_job(4, njobs, false /* verbose */,
-                                            exception_job),
+                                            wrapper),
                           std::exception);
     }
+    int current = iterations;
+    ML::sleep(1.0);
+    BOOST_CHECK_EQUAL(current, iterations);
 }
-
