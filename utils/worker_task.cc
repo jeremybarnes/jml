@@ -264,7 +264,7 @@ int Worker_Task::runWorkerThread()
                 Group_Info & group_info = groups[info.group];
                 if (!group_info.error) {
                     group_info.error = true;
-                    group_info.error_message = exc.what();
+                    group_info.exc = current_exception();
                     mark_group_jobs_ill_ul(group_info, info.group);
                 }
             }
@@ -493,7 +493,7 @@ run_until_finished(int group, bool unlock)
                 if (group_info.jobs_running || group_info.jobs_outstanding) {
                     log("run_until_finished: group_info.jobs_running: " +
                         to_string(group_info.jobs_running)
-                        + "group_info.jobs_outstanding: " +
+                        + "; group_info.jobs_outstanding: " +
                         to_string(group_info.jobs_outstanding)
                         + "\n");
                     continue;
@@ -503,11 +503,11 @@ run_until_finished(int group, bool unlock)
                 //     << " had a group error" << endl;
                 /* The group had an error.  Wait until there's nothing
                    running, then throw an exception. */
-
-                /* Save the message, as we're about to remove the
-                   group. */
-                string message = group_info.error_message;
                 group_info.error = false;
+
+                /* Save the exception ptr, as we're about to remove the
+                   group. */
+                exception_ptr exc = group_info.exc;
 
                 //cerr << "finishing the group..." << endl;
 
@@ -521,8 +521,8 @@ run_until_finished(int group, bool unlock)
                 unlock_group(group);
 
                 /* Done; throw the exception. */
-                
-                throw Exception("Error in worker job: " + message);
+                if (exc)
+                    rethrow_exception(exc);
             }
             else {
                 if (group_info.jobs_outstanding
@@ -549,7 +549,7 @@ run_until_finished(int group, bool unlock)
                     info.job();
                 }
                 else {
-                    log("skipping job from ill group");
+                    log("skipping job from ill group\n");
                 }
 
                 //cerr << "thread " << ACE_OS::thr_self() << " finished job "
@@ -576,7 +576,7 @@ run_until_finished(int group, bool unlock)
                     Group_Info & group_info = groups[info.group];
                     if (!group_info.error) {
                         group_info.error = true;
-                        group_info.error_message = exc.what();
+                        group_info.exc = current_exception();
                         mark_group_jobs_ill_ul(group_info, info.group);
                     }
                 }
@@ -628,7 +628,7 @@ lend_thread(int group)
                 Group_Info & group_info = groups[info.group];
                 if (!group_info.error) {
                     group_info.error = true;
-                    group_info.error_message = exc.what();
+                    group_info.exc = current_exception();
                     cancel_group_ul(group_info, info.group);
                 }
             }
@@ -958,7 +958,6 @@ dump(std::ostream & stream, int indent) const
     stream << i << "  group job          = " << &(*group_job) << endl;
     stream << i << "  locked             = " << locked << endl;
     stream << i << "  error              = " << error << endl;
-    stream << i << "  error message      = " << error_message << endl;
     stream << i << "  finished set       = " << (bool)finished << endl;
 }
 

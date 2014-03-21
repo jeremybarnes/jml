@@ -212,7 +212,7 @@ private:
         Jobs::iterator group_job;  ///< Job for the group; always last
         bool locked;
         bool error;                ///< No further jobs can be run
-        std::string error_message; ///< Error message to throw
+        std::exception_ptr exc;    ///< Exception to rethrow
         std::string info;
 
         void dump(std::ostream & stream, int indent = 0) const;
