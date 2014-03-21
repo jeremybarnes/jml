@@ -88,6 +88,12 @@ Worker_Task::
     for (unsigned i = 0;  i < threads_;  ++i)
         jobs_sem.release();
 
+    /* TODO: finish all tasks */
+    if (jobs.size() || groups.size())
+        cerr << "at the end, there were " << jobs.size()
+             << " jobs outstanding and "
+             << groups.size() << " groups outstanding" << endl;
+
     for (unsigned i = 0;  i < threads_;  ++i)
         shutdown_sem.acquire();
 
@@ -97,12 +103,6 @@ Worker_Task::
             ML::sleep(0.01);
         t->join();
     }
-
-    /* TODO: finish all tasks */
-    if (jobs.size() || groups.size())
-        cerr << "at the end, there were " << jobs.size()
-             << " jobs outstanding and "
-             << groups.size() << " groups outstanding" << endl;
 
     log("~Worker_Task: stopped worker task\n");
 }
