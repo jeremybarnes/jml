@@ -77,22 +77,6 @@ void test_semaphore(int nthreads, int niter)
     BOOST_CHECK_EQUAL(errors, 0);
 }
 
-#if 0
-BOOST_AUTO_TEST_CASE(test_ace_semaphore)
-{
-    test_semaphore<ACE_Semaphore>(1, 1000000);
-    test_semaphore<ACE_Semaphore>(10, 100000);
-    test_semaphore<ACE_Semaphore>(100, 10000);
-}
-#endif
-
-BOOST_AUTO_TEST_CASE(test_our_semaphore)
-{
-    test_semaphore<Semaphore>(1, 1000000);
-    test_semaphore<Semaphore>(10, 100000);
-    test_semaphore<Semaphore>(100, 10000);
-}
-
 void null_job()
 {
 }
@@ -126,6 +110,27 @@ void test_overhead_job(int nthreads, int ntasks, bool verbose = true,
              << " threads:" << timer.elapsed() << endl;
 }
 
+void exception_job()
+{
+    throw Exception("there was an exception");
+}
+
+#if 0
+BOOST_AUTO_TEST_CASE(test_ace_semaphore)
+{
+    test_semaphore<ACE_Semaphore>(1, 1000000);
+    test_semaphore<ACE_Semaphore>(10, 100000);
+    test_semaphore<ACE_Semaphore>(100, 10000);
+}
+#endif
+
+BOOST_AUTO_TEST_CASE(test_our_semaphore)
+{
+    test_semaphore<Semaphore>(1, 1000000);
+    test_semaphore<Semaphore>(10, 100000);
+    test_semaphore<Semaphore>(100, 10000);
+}
+
 BOOST_AUTO_TEST_CASE( test_create_destroy )
 {
     int njobs = 1000;
@@ -144,29 +149,15 @@ BOOST_AUTO_TEST_CASE( test_overhead )
     test_overhead_job(16, njobs);
 }
 
-void exception_job()
-{
-    throw Exception("there was an exception");
-}
-
 BOOST_AUTO_TEST_CASE( test_exception )
 {
     int njobs = 1000;
     set_trace_exceptions(false);
 
-    atomic<int> iterations(0);
-    auto wrapper = [&]() {
-        exception_job();
-        iterations++;
-    };
-
     for (unsigned i = 0;  i < 100;  ++i) {
         JML_TRACE_EXCEPTIONS(false);
         BOOST_CHECK_THROW(test_overhead_job(4, njobs, false /* verbose */,
-                                            wrapper),
+                                            exception_job),
                           std::exception);
     }
-    int current = iterations;
-    ML::sleep(1.0);
-    BOOST_CHECK_EQUAL(current, iterations);
 }
