@@ -46,14 +46,6 @@ void backtrace(std::ostream & stream, int num_to_skip)
         stream << format("%02d: ", i) << result[i].print() << endl;
 }
 
-void backtrace(string & report, int num_to_skip)
-{
-    vector<BacktraceFrame> result = backtrace(num_to_skip);
-
-    for (unsigned i = 0;  i < result.size();  ++i)
-        report += format("%02d: %s\n", i, result[i].print());
-}
-
 /** The information in a backtrace frame. */
 BacktraceFrame::
 BacktraceFrame(int num, const void * frame, const std::string & symbol)
