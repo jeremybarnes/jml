@@ -82,7 +82,7 @@ void null_job()
 }
 
 void test_overhead_job(int nthreads, int ntasks, bool verbose = true,
-                       const std::function<void()> & job = null_job)
+                       const Job & job = null_job)
 {
     Worker_Task worker(nthreads - 1);
     
