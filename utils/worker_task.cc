@@ -24,6 +24,7 @@ using namespace std;
 namespace ML {
 
 Env_Option<int> NUM_THREADS("NUM_THREADS", -1);
+Env_Option<int> DEBUG_LOGGING("DEBUG_LOGGING", 0);
 
 int num_threads()
 {
@@ -35,15 +36,13 @@ int num_threads()
     return result;
 }
 
-#if 0
 void log(const string & msg)
 {
-    pid_t tid = (long) syscall(SYS_gettid);
-    cerr << to_string(tid) + ": " + msg;
+    if (DEBUG_LOGGING != 0) {
+        pid_t tid = (long) syscall(SYS_gettid);
+        cerr << to_string(tid) + ": " + msg;
+    }
 }
-#else
-#define log(x)
-#endif
 
 const Job NO_JOB;
 
