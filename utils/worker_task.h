@@ -186,12 +186,12 @@ private:
         Job_Info(const Job & job, const Job & error,
                  const std::string & info, Id id, Id group = -1)
             : job(job), error(error), id(id), group(group),
-              illGroup(false), info(info) {}
+              invalidGroup(false), info(info) {}
         Job job;
         Job error;
         Id id;    // if -1, this is a group end marker
         Id group;
-        bool illGroup; // true is group has error set
+        bool invalidGroup; // true is group has error set
         std::string info;
         void dump(std::ostream & stream, int indent = 0) const;
     };
@@ -200,7 +200,7 @@ private:
         Group_Info()
             : jobs_outstanding(0), jobs_running(0),
               groups_outstanding(0), parent_group(0),
-              locked(false), error(false)
+              locked(false)
         {
         }
 
@@ -211,7 +211,6 @@ private:
         Id parent_group;           ///< Group to notify when finished
         Jobs::iterator group_job;  ///< Job for the group; always last
         bool locked;
-        bool error;                ///< No further jobs can be run
         std::exception_ptr exc;    ///< Exception to rethrow
         std::string info;
 
@@ -255,9 +254,9 @@ private:
         Lock must already be held. */
     void cancel_group_ul(Group_Info & group_info, int group);
 
-    /** Marks ill all the jobs belonging to a group, so that the worker threads can
+    /** Marks invalid all the jobs belonging to a group, so that the worker threads can
      * skip those jobs easily and in a lockless manner */
-    void mark_group_jobs_ill_ul(Group_Info & group_info, int group);
+    void mark_group_jobs_invalid_ul(Group_Info & group_info, int group);
 
     /** Waits for running jobs to finish. */
     void wait_group_finished(Group_Info & group_info, int group);
